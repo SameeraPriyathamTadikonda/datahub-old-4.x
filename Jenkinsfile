@@ -16,7 +16,7 @@ pipeline{
 	GRADLE_DIR="/.gradle"
 	MAVEN_HOME="/usr/local/maven"
 	DMC_USER     = credentials('MLBUILD_USER')
-    DMC_PASS= credentials('MLBUILD_PASSWORD')
+    DMC_PASSWORD= credentials('MLBUILD_PASSWORD')
 	}
 	parameters{
 	string(name: 'Email', defaultValue: 'stadikon@marklogic.com', description: 'Who should I say send the email to?')
@@ -309,7 +309,7 @@ pipeline{
 		stage('rh7_cluster_9.0-7'){
 			agent { label 'dhfLinuxAgent'}
 			steps{ 
-				copyRPM 'Release','9.0-6'
+				copyRPM 'Release','9.0-7'
 				setUpML '$WORKSPACE/xdmp/src/Mark*.rpm'
 				sh 'echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew :marklogic-data-hub:test --tests com.marklogic.hub.mapping.MappingManagerTest -Pskipui=true'
 				junit '**/TEST-*.xml'
