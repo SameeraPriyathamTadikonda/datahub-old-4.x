@@ -67,7 +67,7 @@ pipeline{
 			}
 			post{
 				  always{
-				  	sh 'rm -rf $WORKSPACE/xdmp/src/Mark*.rpm'
+				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
                     println("Unit Tests Completed")
@@ -210,7 +210,7 @@ pipeline{
 			}
 			post{
 				always{
-				  	sh 'rm -rf $WORKSPACE/xdmp/src/Mark*.rpm'
+				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
                     println("End-End Tests Completed")
@@ -293,7 +293,7 @@ pipeline{
 			}
 			post{
 				 always{
-				  	sh 'rm -rf $WORKSPACE/xdmp/src/Mark*.rpm'
+				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
                     println("Upgrade Tests Completed")
@@ -326,7 +326,7 @@ pipeline{
 			}
 			post{
 				always{
-				  	sh 'rm -rf $WORKSPACE/xdmp/src/Mark*.rpm'
+				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
                     println("Upgrade Tests Completed")
@@ -358,7 +358,7 @@ pipeline{
 			}
 			post{
 				always{
-				  	sh 'rm -rf $WORKSPACE/xdmp/src/Mark*.rpm'
+				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
                     println("Upgrade Tests Completed")
@@ -390,7 +390,7 @@ pipeline{
 			}
 			post{
 				always{
-				  	sh 'rm -rf $WORKSPACE/xdmp/src/Mark*.rpm'
+				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
                     println("Upgrade Tests Completed")
@@ -477,7 +477,7 @@ pipeline{
 			}
 			post{
 				always{
-				  	sh 'rm -rf $WORKSPACE/xdmp/src/Mark*.rpm'
+				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
                     println("Sanity Tests Completed")
