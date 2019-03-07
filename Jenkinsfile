@@ -279,7 +279,7 @@ pipeline{
 				copyRPM 'Release','9.0-6'
 				script{
 				def dockerhost=setupMLDockerCluster 3
-				sh 'docker exec -i '+dockerhost+' /bin/sh -c "echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew :marklogic-data-hub:test --tests com.marklogic.hub.mapping.MappingManagerTest -Pskipui=true"'
+				sh 'docker exec -u builder -i '+dockerhost+' /bin/sh -c "su -builder;echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew :marklogic-data-hub:test --tests com.marklogic.hub.mapping.MappingManagerTest -Pskipui=true"'
 				}
 				junit '**/TEST-*.xml'
 					script{
@@ -314,7 +314,7 @@ pipeline{
 				copyRPM 'Release','9.0-7'
 				script{
 				def dockerhost=setupMLDockerCluster 3
-				sh 'docker exec -i '+dockerhost+' /bin/sh -c "echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew :marklogic-data-hub:test --tests com.marklogic.hub.mapping.MappingManagerTest -Pskipui=true"'
+				sh 'docker exec -u builder -i '+dockerhost+' /bin/sh -c "su -builder;echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew :marklogic-data-hub:test --tests com.marklogic.hub.mapping.MappingManagerTest -Pskipui=true"'
 				}
 				junit '**/TEST-*.xml'
 					script{
@@ -348,7 +348,7 @@ pipeline{
 				copyRPM 'Release','9.0-8'
 				script{
 				def dockerhost=setupMLDockerCluster 3
-				sh 'docker exec -i '+dockerhost+' /bin/sh -c "echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew :marklogic-data-hub:test --tests com.marklogic.hub.mapping.MappingManagerTest -Pskipui=true"'
+				sh 'docker exec -u builder -i '+dockerhost+' /bin/sh -c "echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew :marklogic-data-hub:test --tests com.marklogic.hub.mapping.MappingManagerTest -Pskipui=true"'
 				}
 				junit '**/TEST-*.xml'
 					script{
@@ -382,7 +382,7 @@ pipeline{
 				copyRPM 'Release','9.0-6'
 				script{
 				def dockerhost=setupMLDockerCluster 3
-				sh 'docker exec -i '+dockerhost+' /bin/sh -c "echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew :marklogic-data-hub:test --tests com.marklogic.hub.mapping.MappingManagerTest -Pskipui=true"'
+				sh 'docker exec -u builder -i '+dockerhost+' /bin/sh -c "echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew :marklogic-data-hub:test --tests com.marklogic.hub.mapping.MappingManagerTest -Pskipui=true"'
 				}
 				junit '**/TEST-*.xml'
 					script{
