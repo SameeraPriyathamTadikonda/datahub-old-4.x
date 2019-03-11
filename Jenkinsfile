@@ -417,13 +417,13 @@ pipeline{
 				script{
 				sh 'echo "Killing orphan spawned processes..." \
 					PID_SELF=$$ \
-				for PID in $(ps -eo pid,command -u ${USER} | grep -v grep | tail -n+2 | awk '{print $1}' | grep -v ${PID_SELF}); do
+				for PID in $(ps -eo pid,command -u ${USER} | grep -v grep | tail -n+2 | awk '{print $1}' | \grep -v ${PID_SELF}); do \
   					cat /proc/${PID}/environ 2>/dev/null | \
    					 grep "BUILD_ID=" | \
    					 grep -v "BUILD_ID=dontKillMe" | \
    					 grep -v "BUILD_ID=${BUILD_ID}" -q && \
    					 echo "Killing $(ps -p ${PID} | tail -1)" && \
-    				kill -9 ${PID}
+    				kill -9 ${PID} \
 					done || true'
 				
 				setUpML '$WORKSPACE/xdmp/src/Mark*.rpm'
