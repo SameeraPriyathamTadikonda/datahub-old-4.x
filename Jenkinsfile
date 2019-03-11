@@ -377,14 +377,9 @@ pipeline{
                   }
 		}
 		stage('w12_cluster_9.0-6'){
-			agent { label 'dhfWindowsAgent'}
+			agent { label 'master'}
 			steps{ 
-				copyRPM 'Release','9.0-6'
-				script{
-				def dockerhost=setupMLDockerCluster 3
-				sh 'docker exec -u builder -i '+dockerhost+' /bin/sh -c "echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew :marklogic-data-hub:test --tests com.marklogic.hub.mapping.MappingManagerTest -Pskipui=true"'
-				}
-				junit '**/TEST-*.xml'
+				build 'dhf-core-4.x-develop-winserver2012-cluster_9.0-6'
 					script{
 				 commitMessage = sh (returnStdout: true, script:'''
 			curl -u $Credentials -X GET "'''+githubAPIUrl+'''/git/commits/${GIT_COMMIT}" ''')
@@ -411,38 +406,9 @@ pipeline{
                   }
 		}
 		stage('qs_rh7_singlenode'){
-			agent { label 'dhfLinuxAgent'}
+			agent { label 'master'}
 			steps{ 
-				copyRPM 'Latest'
-				script{
-				sh(returnStdout: true,script:'''
-				 echo "Killing orphan spawned processes..."
-					PID_SELF=$$
-				for PID in $(ps -eo pid,command -u ${USER} | grep -v grep | tail -n+2 | awk '{print $1}' | grep -v ${PID_SELF}); do
-  					cat /proc/${PID}/environ 2>/dev/null | \
-   					 grep "BUILD_ID=" | \
-   					 grep -v "BUILD_ID=dontKillMe" | \
-   					 grep -v "BUILD_ID=${BUILD_ID}" -q && \
-   					 echo "Killing $(ps -p ${PID} | tail -1)" && \
-    				kill -9 ${PID}
-					done || true;exit 0;''')
-				setUpML '$WORKSPACE/xdmp/src/Mark*.rpm'
-				sh 'echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew build -x test;cd quick-start;BUILD_ID=dontKillMe nohup java -jar build/libs/quick-start-4.1-SNAPSHOT.war &; sleep 30s'
-				sh 'echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;set +e; node -v;cd quick-start;./node_modules/.bin/ng e2e --devServerTarget='' --base-url http://localhost:8080 \
-				command || true'
-				sh(returnStdout: true,script:'''
-				 echo "Killing orphan spawned processes..."
-					PID_SELF=$$
-				for PID in $(ps -eo pid,command -u ${USER} | grep -v grep | tail -n+2 | awk '{print $1}' | grep -v ${PID_SELF}); do
-  					cat /proc/${PID}/environ 2>/dev/null | \
-   					 grep "BUILD_ID=" | \
-   					 grep -v "BUILD_ID=dontKillMe" | \
-   					 grep -v "BUILD_ID=${BUILD_ID}" -q && \
-   					 echo "Killing $(ps -p ${PID} | tail -1)" && \
-    				kill -9 ${PID}
-					done || true;exit 0;''')
-				}
-				junit 'quick-start/e2e/reports/*.html, quick-start/e2e/reports/*.xml, quick-start/e2e/reports/screenshots/*.png, quick-start/e2e/screenshoter-plugin/**/*'
+				build 'NO_CI_dhf-qs-4.x-develop-rh7'
 					script{
 				 commitMessage = sh (returnStdout: true, script:'''
 			curl -u $Credentials -X GET "'''+githubAPIUrl+'''/git/commits/${GIT_COMMIT}" ''')
@@ -451,7 +417,34 @@ pipeline{
 				JIRA_ID=commit.split(("\\n"))[0].split(':')[0].trim();
 				JIRA_ID=JIRA_ID.split(" ")[0];
 				commitMessage=null;
-				jiraAddComment comment: 'Jenkins rh7_cluster_9.0-8 Test Results For PR Available', idOrKey: JIRA_ID, site: 'JIRA'
+				jiraAddComment comment: 'Jenkins qs_rh7_singlenode.0-8 Test Results For PR Available', idOrKey: JIRA_ID, site: 'JIRA'
+				}
+			}
+			post{
+				
+                  success {
+                    println("qs_rh7_singlenode.0-8 Tests Completed")
+                    sendMail Email,'Check: ${BUILD_URL}/console',false,'qs_rh7_singlenode.0-8 Tests for $BRANCH_NAME Passed'
+                   }
+                   failure {
+                      println("qs_rh7_singlenode.0-8 Tests Failed")
+                      sendMail Email,'Check: ${BUILD_URL}/console',false,'qs_rh7_singlenode.0-8 Tests for $BRANCH_NAME Failed'
+                  }
+                  }
+		}
+		stage('qs_w12_singlenode'){
+			agent { label 'master'}
+			steps{ 
+				build 'NO_CI_dhf-qs-4.x-develop-winserver2012'
+					script{
+				 commitMessage = sh (returnStdout: true, script:'''
+			curl -u $Credentials -X GET "'''+githubAPIUrl+'''/git/commits/${GIT_COMMIT}" ''')
+			def slurper = new JsonSlurperClassic().parseText(commitMessage.toString().trim())
+				def commit=slurper.message.toString().trim();
+				JIRA_ID=commit.split(("\\n"))[0].split(':')[0].trim();
+				JIRA_ID=JIRA_ID.split(" ")[0];
+				commitMessage=null;
+				jiraAddComment comment: 'Jenkins qs_w12_singlenode Test Results For PR Available', idOrKey: JIRA_ID, site: 'JIRA'
 				}
 			}
 			post{
@@ -459,12 +452,12 @@ pipeline{
 				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
-                    println("rh7_cluster_9.0-8 Tests Completed")
-                    sendMail Email,'Check: ${BUILD_URL}/console',false,'rh7_cluster_9.0-8 Tests for $BRANCH_NAME Passed'
+                    println("qs_w12_singlenode Tests Completed")
+                    sendMail Email,'Check: ${BUILD_URL}/console',false,'qs_w12_singlenode Tests for $BRANCH_NAME Passed'
                    }
                    failure {
-                      println("rh7_cluster_9.0-8 Tests Failed")
-                      sendMail Email,'Check: ${BUILD_URL}/console',false,'rh7_cluster_9.0-8 Tests for $BRANCH_NAME Failed'
+                      println("qs_w12_singlenode Tests Failed")
+                      sendMail Email,'Check: ${BUILD_URL}/console',false,'qs_w12_singlenode Tests for $BRANCH_NAME Failed'
                   }
                   }
 		}
