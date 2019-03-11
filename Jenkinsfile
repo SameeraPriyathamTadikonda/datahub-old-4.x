@@ -298,12 +298,12 @@ pipeline{
 				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
-                    println("Upgrade Tests Completed")
+                    println("rh7_cluster_9.0-6 Tests Completed")
                     sendMail Email,'Check: ${BUILD_URL}/console',false,'rh7_cluster_9.0-6 Tests $BRANCH_NAME Passed'
                     // sh './gradlew publish'
                    }
                    failure {
-                      println("Upgrade Tests Failed")
+                      println("rh7_cluster_9.0-6 Tests Failed")
                       sendMail Email,'Check: ${BUILD_URL}/console',false,'rh7_cluster_9.0-6 Tests for $BRANCH_NAME Failed'
                   }
                   }
@@ -333,11 +333,11 @@ pipeline{
 				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
-                    println("Upgrade Tests Completed")
+                    println("rh7_cluster_9.0-7 Completed")
                     sendMail Email,'Check: ${BUILD_URL}/console',false,'rh7_cluster_9.0-7 Tests for $BRANCH_NAME Passed'
                    }
                    failure {
-                      println("Upgrade Tests Failed")
+                      println("rh7_cluster_9.0-7 Failed")
                       sendMail Email,'Check: ${BUILD_URL}/console',false,'rh7_cluster_9.0-7 Tests for $BRANCH_NAME Failed'
                   }
                   }
@@ -367,11 +367,11 @@ pipeline{
 				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
-                    println("Upgrade Tests Completed")
+                    println("rh7_cluster_9.0-8 Tests Completed")
                     sendMail Email,'Check: ${BUILD_URL}/console',false,'rh7_cluster_9.0-8 Tests for $BRANCH_NAME Passed'
                    }
                    failure {
-                      println("Upgrade Tests Failed")
+                      println("rh7_cluster_9.0-8 Tests Failed")
                       sendMail Email,'Check: ${BUILD_URL}/console',false,'rh7_cluster_9.0-8 Tests for $BRANCH_NAME Failed'
                   }
                   }
@@ -401,12 +401,72 @@ pipeline{
 				  	sh 'rm -rf $WORKSPACE/xdmp'
 				  }
                   success {
-                    println("Upgrade Tests Completed")
+                    println("w12_cluster_9.0-6 Tests Completed")
                     sendMail Email,'Check: ${BUILD_URL}/console',false,'w12_cluster_9.0-6 Tests for $BRANCH_NAME Passed'
                    }
                    failure {
-                      println("Upgrade Tests Failed")
+                      println("w12_cluster_9.0-6 Tests Failed")
                       sendMail Email,'Check: ${BUILD_URL}/console',false,'w12_cluster_9.0-6 Tests for $BRANCH_NAME Failed'
+                  }
+                  }
+		}
+		stage('qs_rh7_singlenode'){
+			agent { label 'dhfLinuxAgent'}
+			steps{ 
+				copyRPM 'Latest'
+				script{
+				sh(script:'''
+				 echo "Killing orphan spawned processes..."
+					PID_SELF=$$
+				for PID in $(ps -eo pid,command -u ${USER} | grep -v grep | tail -n+2 | awk '{print $1}' | grep -v ${PID_SELF}); do
+  					cat /proc/${PID}/environ 2>/dev/null | \
+   					 grep "BUILD_ID=" | \
+   					 grep -v "BUILD_ID=dontKillMe" | \
+   					 grep -v "BUILD_ID=${BUILD_ID}" -q && \
+   					 echo "Killing $(ps -p ${PID} | tail -1)" && \
+    				kill -9 ${PID}
+					done || true
+				''')
+				setUpML '$WORKSPACE/xdmp/src/Mark*.rpm'
+				sh 'echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew build -x test;cd quick-start;BUILD_ID=dontKillMe nohup java -jar build/libs/quick-start-4.1-SNAPSHOT.war &; sleep 30s'
+				sh 'echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;set +e; node -v;cd quick-start;./node_modules/.bin/ng e2e --devServerTarget='' --base-url http://localhost:8080 \
+				command || true'
+				sh(script:'''
+				 echo "Killing orphan spawned processes..."
+					PID_SELF=$$
+				for PID in $(ps -eo pid,command -u ${USER} | grep -v grep | tail -n+2 | awk '{print $1}' | grep -v ${PID_SELF}); do
+  					cat /proc/${PID}/environ 2>/dev/null | \
+   					 grep "BUILD_ID=" | \
+   					 grep -v "BUILD_ID=dontKillMe" | \
+   					 grep -v "BUILD_ID=${BUILD_ID}" -q && \
+   					 echo "Killing $(ps -p ${PID} | tail -1)" && \
+    				kill -9 ${PID}
+					done || true
+				''')
+				}
+				junit 'quick-start/e2e/reports/*.html, quick-start/e2e/reports/*.xml, quick-start/e2e/reports/screenshots/*.png, quick-start/e2e/screenshoter-plugin/**/*'
+					script{
+				 commitMessage = sh (returnStdout: true, script:'''
+			curl -u $Credentials -X GET "'''+githubAPIUrl+'''/git/commits/${GIT_COMMIT}" ''')
+			def slurper = new JsonSlurperClassic().parseText(commitMessage.toString().trim())
+				def commit=slurper.message.toString().trim();
+				JIRA_ID=commit.split(("\\n"))[0].split(':')[0].trim();
+				JIRA_ID=JIRA_ID.split(" ")[0];
+				commitMessage=null;
+				jiraAddComment comment: 'Jenkins rh7_cluster_9.0-8 Test Results For PR Available', idOrKey: JIRA_ID, site: 'JIRA'
+				}
+			}
+			post{
+				always{
+				  	sh 'rm -rf $WORKSPACE/xdmp'
+				  }
+                  success {
+                    println("rh7_cluster_9.0-8 Tests Completed")
+                    sendMail Email,'Check: ${BUILD_URL}/console',false,'rh7_cluster_9.0-8 Tests for $BRANCH_NAME Passed'
+                   }
+                   failure {
+                      println("rh7_cluster_9.0-8 Tests Failed")
+                      sendMail Email,'Check: ${BUILD_URL}/console',false,'rh7_cluster_9.0-8 Tests for $BRANCH_NAME Failed'
                   }
                   }
 		}
