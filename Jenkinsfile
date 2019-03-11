@@ -415,9 +415,8 @@ pipeline{
 			steps{ 
 				copyRPM 'Latest'
 				script{
-				sh(returnStdout: true,script:'''
-				 echo "Killing orphan spawned processes..."
-					PID_SELF=$$
+				sh 'echo "Killing orphan spawned processes..." \
+					PID_SELF=$$ \
 				for PID in $(ps -eo pid,command -u ${USER} | grep -v grep | tail -n+2 | awk '{print $1}' | grep -v ${PID_SELF}); do
   					cat /proc/${PID}/environ 2>/dev/null | \
    					 grep "BUILD_ID=" | \
@@ -425,8 +424,8 @@ pipeline{
    					 grep -v "BUILD_ID=${BUILD_ID}" -q && \
    					 echo "Killing $(ps -p ${PID} | tail -1)" && \
     				kill -9 ${PID}
-					done || true
-				''')
+					done || true'
+				
 				setUpML '$WORKSPACE/xdmp/src/Mark*.rpm'
 				sh 'echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;./gradlew clean;./gradlew clean;./gradlew build -x test;cd quick-start;BUILD_ID=dontKillMe nohup java -jar build/libs/quick-start-4.1-SNAPSHOT.war &; sleep 30s'
 				sh 'echo $JAVA_HOME;export JAVA_HOME=`$JAVA_HOME_DIR`;export GRADLE_USER_HOME=$WORKSPACE$GRADLE_DIR;export M2_HOME=$MAVEN_HOME/bin;export PATH=$GRADLE_USR_HOME:$PATH:$MAVEN_HOME/bin;cd $WORKSPACE/data-hub;rm -rf $GRADLE_USER_HOME/caches;set +e; node -v;cd quick-start;./node_modules/.bin/ng e2e --devServerTarget='' --base-url http://localhost:8080 \
