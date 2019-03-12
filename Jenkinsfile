@@ -19,7 +19,7 @@ pipeline{
     DMC_PASSWORD= credentials('MLBUILD_PASSWORD')
 	}
 	parameters{
-	string(name: 'Email', defaultValue: 'stadikon@marklogic.com', description: 'Who should I say send the email to?')
+	string(name: 'Email', defaultValue: 'stadikon@marklogic.com,rvudutal@marklogic.com', description: 'Who should I say send the email to?')
 	}
 	stages{
 		stage('Build-datahub'){
@@ -117,7 +117,7 @@ pipeline{
 			sendMail email,'Check: ${BUILD_URL}/console',false,'Waiting for code review $BRANCH_NAME '
 			}
 			try{
-			 timeout(time:5, unit:'MINUTES') {
+			 timeout(time:60, unit:'MINUTES') {
             input message:'Review Done?'
         }
         }catch(err){
@@ -152,7 +152,7 @@ pipeline{
     					}
     				}else if(response.equals("blocked")){
     					println("retry blocked");
-    					sleep time: 1, unit: 'MINUTES'
+    					sleep time: 30, unit: 'MINUTES'
     					throw new Exception("Waiting for all the status checks to pass");
     				}else if(response.equals("unstable")){
     					println("retry unstable")
