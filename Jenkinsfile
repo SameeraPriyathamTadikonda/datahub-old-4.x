@@ -18,7 +18,7 @@ pipeline{
 	DMC_USER     = credentials('MLBUILD_USER')
     DMC_PASSWORD= credentials('MLBUILD_PASSWORD')
 	}
-	parameters{
+	parameters{ 
 	string(name: 'Email', defaultValue: 'stadikon@marklogic.com,rvudutal@marklogic.com', description: 'Who should I say send the email to?')
 	}
 	stages{
