@@ -6,6 +6,7 @@ def commitMessage="";
 def prResponse="";
 def prNumber;
 def githubAPIUrl="https://api.github.com/repos/SameeraPriyathamTadikonda/marklogic-data-hub"
+
 pipeline{
 	agent none;
 	options {
